@@ -14,5 +14,6 @@ operation offline and with no real database.<br><br>
 <br><br>
 
 ## VsCode Plugin Used:<br>
-- Rest Client:  For testing the Api endpoints in vscode. A more<br> convenient alternative to POSTMAN.
+- ### Rest Client:  
+For testing the API endpoints in vscode. A more convenient alternative to POSTMAN.
 

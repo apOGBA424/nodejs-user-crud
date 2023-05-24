@@ -1,0 +1,40 @@
+###
+# GET https://fakestoreapi.com/products
+
+### get all users in DB
+GET http://localhost:3000/users
+
+
+### create a new user
+POST http://localhost:3000/signup
+Content-Type: application/json
+
+{
+    "name": "Paschal Ogba",
+    "password": "devOps"
+}
+
+
+### authenticate user by log-in
+POST http://localhost:3000/users/login
+Content-Type: application/json
+
+{
+    "name": "Brad Traversy",
+    "password": "devOps"
+}
+
+
+### find an existing user
+GET http://localhost:3000/user/1684887476534
+Content-Type: application/json
+
+
+### log-out selected user
+GET  http://localhost:3000/user/logout/1684887476534
+Content-Type: application/json
+
+
+### delete selected user
+GET  http://localhost:3000/user/delete/1684888189639
+Content-Type: application/json

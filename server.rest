@@ -1,5 +1,3 @@
-###
-# GET https://fakestoreapi.com/products
 
 ### get all users in DB
 GET http://localhost:3000/users
@@ -9,32 +7,54 @@ GET http://localhost:3000/users
 POST http://localhost:3000/signup
 Content-Type: application/json
 
+# {
+#     "name": "Paschal Ogba",
+#     "password": "devOps"
+# }
+# {
+#     "name": "Edward Snowden",
+#     "password": "hacker"
+# }
 {
-    "name": "Paschal Ogba",
-    "password": "devOps"
+    "name": "Nikola Tesla",
+    "password": "inventor"
 }
+
 
 
 ### authenticate user by log-in
 POST http://localhost:3000/users/login
 Content-Type: application/json
 
+# {
+#     "name": "Paschal Ogba",
+#     "password": "devOps"
+# }
+# {
+#     "name": "Nikola Tesla",
+#     "password": "inventor"
+# }
 {
-    "name": "Brad Traversy",
-    "password": "devOps"
+    "name": "Edward Snowden",
+    "password": "hacker"
 }
 
 
+
+### protected route here
+GET http://localhost:3000/user/protected/
+
+
 ### find an existing user
-GET http://localhost:3000/user/1684887476534
+GET http://localhost:3000/user/1685246328262
 Content-Type: application/json
 
 
 ### log-out selected user
-GET  http://localhost:3000/user/logout/1684887476534
+GET  http://localhost:3000/user/logout/1685246328262
 Content-Type: application/json
 
 
 ### delete selected user
-GET  http://localhost:3000/user/delete/1684888189639
+GET  http://localhost:3000/user/delete/1685246328262
 Content-Type: application/json

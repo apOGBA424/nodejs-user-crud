@@ -1,7 +1,11 @@
 const express = require('express');
 const router = express.Router;
 
-const {publicPosts, privatePosts} = require('../db.js')
+const {usersList, publicPosts, privatePosts} = require('../db.js')
+
+router.get('/users', (req, res)=>{
+    res.json({usersList});
+});
 
 router.get('/free', (req, res)=>{
     res.json({publicPosts});

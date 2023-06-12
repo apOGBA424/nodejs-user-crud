@@ -162,26 +162,9 @@ app.post('/users/login', async(req, res)=>{
 });
 
 
-// create auth bearer token middleware
-function checkAuthMiddleware(req, res, next) {
-    const accessToken = req.header.authorization;
-
-    let isTest = true;
-    // let isTest = false;
-    if (isTest) {
-        console.log('\n\n\nvalid credentials');
-        // res.json({'msg':'authorized',usersList,accessToken})
-        res.redirect('/users')
-    }else{
-        res.status(401).json({'msg':'invalid credentials'})
-    }
-
-    next();
-}
-
 
 // protected routes only for authorised users
-app.get('/user/protected',checkAuthMiddleware ,(req, res)=>{
+app.get('/user/protected',authorizeUser_by_ID_fromCookie ,(req, res)=>{
     // res.json({'msg':'protected-route middleware'});
 });
 

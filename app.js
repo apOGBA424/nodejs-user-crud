@@ -3,13 +3,20 @@ require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const session = require('express-session');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+
+
 
 
 // middlewares
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(cors());
+
+
 
 
 // variables
@@ -24,16 +31,11 @@ app.listen(port, ()=>{console.log(`server running on port ${port}`)});
 
 
 
-
-//**************************************
 //            ROUTES
-//************************************** 
-
 
 // get all user registered in database
 app.get('/users', (req, res)=>{
-    console.log('all users');
-    console.table(usersList);
+    // console.table(usersList);
     res.json(usersList);
 });
 
@@ -41,22 +43,71 @@ app.get('/users', (req, res)=>{
 // create a new user
 app.post('/signup', async(req, res)=>{
 
-    // check if the user is registered already
-    const alreadyUser = usersList.find((user)=>user.name === req.body.name);
+    try {
+        // check if the user is registered already
+        const alreadyUser = usersList.find((user)=>user.name === req.body.name);
 
-    if (alreadyUser) {
-        return res.status(409).json({'msg': 'User already exists'});
+        if (alreadyUser) {
+            return res.status(409).json({'msg': 'User already exists'});
+        }
+
+        const user = {
+            user_id : new Date().valueOf().toString(),
+            name : req.body.name,
+            password : await bcrypt.hash(req.body.password, 10),
+        }
+
+        usersList.push(user);
+        res.status(201).send(`${user.name} created`);
+            
+    } catch (error) {
+        console.log('error occured');
     }
 
-    const user = {
-        user_id : new Date().valueOf().toString(),
-        name : req.body.name,
-        password : await bcrypt.hash(req.body.password, 10),
-    }
-
-    usersList.push(user);
-    res.status(201).send(user);
 });
+
+
+   
+// middleware to get user_id from cookie
+const authorizeUser_by_ID_fromCookie = (req, res, next)=>{
+
+    const cookie_token = req.cookies.authorization;
+    
+
+    // error after cookie duration expired
+    if (!cookie_token) {
+        // return res.json({error});
+        return res.status(403).json({'msg': 'Access denied'});
+    }
+
+        console.log(`cookie_token--> ${cookie_token}`);
+        
+        const token_from_cookie = cookie_token.split(' ')[1];
+        console.log(`\ntoken_from_cookie (after split(''))--> ${token_from_cookie}`);
+
+
+        try {
+            jwt.verify(token_from_cookie, jwtsecret, (err, decoded_payload)=>{
+                
+                //error for tampered cookie
+                if (err) {
+                    // return res.json({err}); 
+                    return res.status(401).json({'err': 'token not valid'});
+                }
+
+                /* create a user variable in request-object and name it
+                "req.user" then assign to it the "decode_payload" as the value*/
+                req.user = decoded_payload;
+
+                // return res.json({'req.user': req.user});
+
+            });
+        } catch (error) {
+            return res.status(500).json({'err': 'server error from authz middleware'});
+        }
+
+    next();
+}
 
 
 
@@ -79,21 +130,31 @@ app.post('/users/login', async(req, res)=>{
 
         // if password is correct, sign jwt accessToken
         if (isPasswordValid) {
-            console.info(`user_id--> ${userAccount.user_id}`)
-            console.info(`jwtsecret--> ${jwtsecret}`)
+
+            const user = {
+                id : userAccount.id,
+                name : userAccount.name,
+            }
+
+            console.info(`user_id--> ${userAccount.id}`);
+            console.info(`user_name--> ${userAccount.name}\n`);
             
             // generate an access accessToken
-            const accessToken = jwt.sign({user_id: userAccount}, jwtsecret) //jwtsecret is: 'jwt-secr3t'
+            const accessToken = jwt.sign(userAccount, jwtsecret) //jwtsecret is: 'jwt-secr3t'
+            console.info(`jwtsecret--> ${jwtsecret}\n\n`);
             
-            console.info('log-in successful')
            
-            // store the accessToken in a cookie
-            // res.cookie('accessToken', accessToken, {httpOnly: true});
-            const cookietoken = res.cookie('accessToken', accessToken, {httpOnly: true});
+            const authorization = `Bearer ${jwt_token}`;
+            const authzHeader = req.headers['authorization'] = authorization;
+            console.log(`authzHeader will save as--->  'authorization': ${authzHeader}`);
 
-            res.status(200).json({'msg':`${userAccount.name} log-in successful`,accessToken,jwtsecret});
+            // store the authzHeader in a cookie
+            res.cookie('authorization', authzHeader , {maxAge:55000, httpOnly: true}); //55seconds
+
+            return res.status(200).json({'msg':`${userAccount.name} log-in successful`,accessToken,jwtsecret});
+            
         }else{
-            res.status(400).send({'msg':'log-in failed'})
+            res.status(400).send({'msg':'password not valid, log-in failed'});
         }
     } catch (err) {
         res.status(500).json({'msg': err.message});

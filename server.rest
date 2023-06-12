@@ -1,60 +1,61 @@
 
-### get all users in DB
-GET http://localhost:3000/users
+### *********** HERE's for PORT:3000 ONLY ***********
+# ### get all users in DB
+# GET http://localhost:3000/users
 
 
-### create a new user
-POST http://localhost:3000/signup
-Content-Type: application/json
+# ### create a new user
+# POST http://localhost:3000/signup
+# Content-Type: application/json
 
-# {
-#     "name": "Paschal Ogba",
-#     "password": "devOps"
-# }
-# {
-#     "name": "Edward Snowden",
-#     "password": "hacker"
-# }
-{
-    "name": "Nikola Tesla",
-    "password": "inventor"
-}
-
-
-
-### authenticate user by log-in
-POST http://localhost:3000/users/login
-Content-Type: application/json
-
-# {
-#     "name": "Paschal Ogba",
-#     "password": "devOps"
-# }
+# # {
+# #     "name": "Paschal Ogba",
+# #     "password": "devOps"
+# # }
+# # {
+# #     "name": "Edward Snowden",
+# #     "password": "hacker"
+# # }
 # {
 #     "name": "Nikola Tesla",
 #     "password": "inventor"
 # }
-{
-    "name": "Edward Snowden",
-    "password": "hacker"
-}
 
 
 
-### protected route here
-GET http://localhost:3000/user/protected/
+# ### authenticate user by log-in
+# POST http://localhost:3000/users/login
+# Content-Type: application/json
+
+# # {
+# #     "name": "Paschal Ogba",
+# #     "password": "devOps"
+# # }
+# # {
+# #     "name": "Nikola Tesla",
+# #     "password": "inventor"
+# # }
+# {
+#     "name": "Edward Snowden",
+#     "password": "hacker"
+# }
 
 
-### find an existing user
-GET http://localhost:3000/user/1685246328262
-Content-Type: application/json
+
+# ### protected route here
+# GET http://localhost:3000/user/protected/
 
 
-### log-out selected user
-GET  http://localhost:3000/user/logout/1685246328262
-Content-Type: application/json
+# ### find an existing user
+# GET http://localhost:3000/user/1685246328262
+# Content-Type: application/json
 
 
-### delete selected user
-GET  http://localhost:3000/user/delete/1685246328262
-Content-Type: application/json
+# ### log-out selected user
+# GET  http://localhost:3000/user/logout/1685246328262
+# Content-Type: application/json
+
+
+# ### delete selected user
+# GET  http://localhost:3000/user/delete/1685246328262
+# Content-Type: application/json

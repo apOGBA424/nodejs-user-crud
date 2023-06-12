@@ -2,3 +2,6 @@ test.js
 package-lock.json
 node_modules
 .env
+
+main.js
+testServer.rest

@@ -172,26 +172,34 @@ app.get('/user/protected',authorizeUser_by_ID_fromCookie ,(req, res)=>{
 
 // get one user by id
 app.get('/user/:id', (req, res)=>{
-    const user = usersList.find((user)=>user.user_id === req.params.id);
-    if(user){
-    res.status(200).json({msg: 'user found successfully',user});
-    }else{
-        res.status(404).send({'msg': 'user not found'});
+    
+    try {
+        
+        const user = usersList.find((user)=>user.user_id === req.params.id);
+        if(user){
+            return res.status(200).json({msg: 'user found successfully',user});
+        }else{
+            return res.status(404).send({'msg': 'user not found'});
+        }
+
+    } catch (error) {
+        return res.status(500).send('resquest not granted');
     }
 });
 
 
-// update user's record (eg: password)
-app.put('/user/update/:id', (req, res)=>{
+// edit user's data (eg: password)
+app.put('/user/update/:id',authorizeUser_by_ID_fromCookie, (req, res)=>{
     const user = usersList.find((user)=>user.user_id === req.params.id);
+    
     if(!user){
-        res.status(404).send({'msg': 'user not found'});
+        return res.status(404).send({'msg': 'user not found'});
     }
 
-    const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+    const hashedPassword = bcrypt.hash(req.body.password, 10);
     user.password = hashedPassword;
 
-    res.status(200).json({msg: 'password updated successfully'});
+    return res.status(200).json({msg: 'password updated successfully', user});
 });
 
 

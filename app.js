@@ -163,19 +163,13 @@ app.post('/users/login', async(req, res)=>{
 
 
 
-// protected routes only for authorised users
-app.get('/user/protected',authorizeUser_by_ID_fromCookie ,(req, res)=>{
-    // res.json({'msg':'protected-route middleware'});
-});
-
-
-
 // get one user by id
 app.get('/user/:id', (req, res)=>{
     
     try {
         
         const user = usersList.find((user)=>user.user_id === req.params.id);
+
         if(user){
             return res.status(200).json({msg: 'user found successfully',user});
         }else{
@@ -203,26 +197,54 @@ app.put('/user/update/:id',authorizeUser_by_ID_fromCookie, (req, res)=>{
 });
 
 
-// logout user
-app.get('/user/logout/:id', (req, res)=>{
-    const user = usersList.find((user)=>user.user_id === req.params.id);
-    console.log(user)
-    res.status(204).json({msg: 'log-out successful'});
-});
 
+// remove user from database
+app.delete('/user/delete_user/:id', authorizeUser_by_ID_fromCookie, (req, res)=>{
 
-// delete user
-app.get('/user/delete/:id', (req, res)=>{
-    const userIndex = usersList.findIndex((user)=>user.user_id === req.params.id);
-    console.log(userIndex)
+    try {
+        const find_user = usersList.find((user)=> user.id === req.params.id);
+        const find_userIndex = usersList.findIndex((user)=> user.id === req.params.id);
 
-    if(userIndex === -1){
-        res.status(404).send({'msg': 'user account not found'});
+        if (find_user.id !== req.params.id) {
+            return res.status(401).json({'err': 'access denied'});
+        }
+
+        if (!find_user) {
+            return res.status(404).json({'err': 'invalid credential'});
+        }
+
+        // delete user that matches the index using .splice( ) method
+        const removeIndex_match = userDB.splice(find_userIndex, 1)[0];
+        console.log(`${removeIndex_match.name} account delete request done.`);
+
+        // return res.status(202).json(userDB);
+        return res.send(userDB).json({'msg': `\n\n${removeIndex_match.name} account delete request done.`});
+
+    } catch (error) {
+        console.log();
     }
 
-    // remove user from userList
-    const deletedUser = usersList.splice(userIndex, 1)[0];
-    
-    res.status(200).json({msg: `${deletedUser['name']} acct delete successful`});
 });
 
+
+
+// logout user
+app.delete('/user/logout', authorizeUser_by_ID_fromCookie, (req, res)=>{
+    console.log('user account log out');
+    res.clearCookie('authorization')
+        .status(204).json({'msg': 'account logged out'});
+});
+
+
+// protected route
+app.get('/user/dashboard',authorizeUser_by_ID_fromCookie, (req, res)=>{
+    console.log('\n\n\nuser dashboard route');
+
+    try {
+    res.status(200).send(`${req.user.name} Dashboard`);
+        
+    } catch (error) {
+        console.log('token error')
+    }
+
+});

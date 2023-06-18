@@ -31,7 +31,7 @@ app.listen(port, ()=>{console.log(`server running on port ${port}`)});
 
 
 
-//            ROUTES
+//-----------------------------ROUTES-----------------------------
 
 // get all user registered in database
 app.get('/users', (req, res)=>{
@@ -123,6 +123,7 @@ app.post('/users/login', async(req, res)=>{
     try {  
         // compare current password with hasdedPassword
         const isPasswordValid = await bcrypt.compare(req.body.password, userAccount.password);
+        console.log(`from Log-in, userAccount.password---> ${userAccount.password}`);
         if (!isPasswordValid) {
             res.status(400).send({'msg':'password is incorrect'});
         }
@@ -136,15 +137,16 @@ app.post('/users/login', async(req, res)=>{
                 name : userAccount.name,
             }
 
-            console.info(`user_id--> ${userAccount.id}`);
-            console.info(`user_name--> ${userAccount.name}\n`);
+            console.info(`user_id--> ${user.id}`);
+            console.info(`user_name--> ${user.name}\n`);
             
             // generate an access accessToken
-            const accessToken = jwt.sign(userAccount, jwtsecret) //jwtsecret is: 'jwt-secr3t'
+            const accessToken = jwt.sign(user, jwtsecret) //jwtsecret is: 'jwt-secr3t'
+            console.info(`accessToken--> ${accessToken}\n\n`);
             console.info(`jwtsecret--> ${jwtsecret}\n\n`);
             
            
-            const authorization = `Bearer ${jwt_token}`;
+            const authorization = `Bearer ${accessToken}`;
             const authzHeader = req.headers['authorization'] = authorization;
             console.log(`authzHeader will save as--->  'authorization': ${authzHeader}`);
 
@@ -157,7 +159,7 @@ app.post('/users/login', async(req, res)=>{
             res.status(400).send({'msg':'password not valid, log-in failed'});
         }
     } catch (err) {
-        res.status(500).json({'msg': err.message});
+        res.status(500).json({'msg': 'server Error'});
     }
 });
 
@@ -171,7 +173,7 @@ app.get('/user/:id', (req, res)=>{
         const user = usersList.find((user)=>user.user_id === req.params.id);
 
         if(user){
-            return res.status(200).json({msg: 'user found successfully',user});
+            return res.status(200).json({msg: 'user query valid',user});
         }else{
             return res.status(404).send({'msg': 'user not found'});
         }
@@ -182,18 +184,36 @@ app.get('/user/:id', (req, res)=>{
 });
 
 
+
 // edit user's data (eg: password)
-app.put('/user/update/:id',authorizeUser_by_ID_fromCookie, (req, res)=>{
+app.put('/user/update/:id',authorizeUser_by_ID_fromCookie, async (req, res)=>{
     const user = usersList.find((user)=>user.user_id === req.params.id);
     
     if(!user){
         return res.status(404).send({'msg': 'user not found'});
     }
 
-    const hashedPassword = bcrypt.hash(req.body.password, 10);
-    user.password = hashedPassword;
+    console.log(`fron Edit password, user.password b4 edit--> ${user.password}`);
+    console.log(`fron Edit password, new password--> ${req.body.password}`);
 
-    return res.status(200).json({msg: 'password updated successfully', user});
+    try {
+
+        if (bcrypt.compare(req.body.password, user.password) === true){
+            throw Error("new password matches old");
+        }else{
+
+            // update the database with a hashed version of the new password
+            let newHashedPassword;
+            newHashedPassword = await bcrypt.hash(req.body.password, 10);
+            user.password = newHashedPassword;
+            
+            console.log(`fron Edit password, new Hashed-password--> ${user.password}`);
+        };
+    
+    } catch (error) {
+        console.log(`ERROR: from try/catch edit-user-password--> ${error}`);
+    }
+
 });
 
 

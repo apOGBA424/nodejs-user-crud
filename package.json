@@ -2,7 +2,7 @@
   "name": "testapiauth",
   "version": "1.0.0",
   "description": "learning user authentication and authorization using bcrypt and jwt",
-  "main": "app.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -26,6 +26,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^5.5.0",
     "mongoose": "^7.2.0",
+    "multer": "^1.4.5-lts.1",
     "uuid": "^9.0.0"
   }
 }
